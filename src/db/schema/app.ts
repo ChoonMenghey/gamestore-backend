@@ -10,7 +10,7 @@ export const users = pgTable('users', {
   id: serial('id').primaryKey(),
   username: varchar('username', { length: 100 }).notNull().unique(),
   email: varchar('email', { length: 255 }).notNull().unique(),
-  password: varchar('password', { length: 50 }).notNull(),
+  password: varchar('password', { length: 255 }).notNull(),
   ...timestamps,
 });
 
@@ -42,8 +42,8 @@ export const genreRelations = relations(genres, ({ many }) => ({
   games: many(games),
 }));
 
-export const Genre = typeof genres.$inferSelect;
-export const NewGenre = typeof genres.$inferInsert;
+export type Genre = typeof genres.$inferSelect;
+export type NewGenre = typeof genres.$inferInsert;
 
-export const Game = typeof games.$inferSelect
-export const NewGame = typeof games.$inferInsert;
+export type Game = typeof games.$inferSelect
+export type NewGame = typeof games.$inferInsert;
