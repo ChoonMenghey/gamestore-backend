@@ -1,10 +1,14 @@
 import express from 'express';
 import cors from 'cors';
+import 'dotenv/config';
 import gamesRouter from './routes/games';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+if (!process.env.FRONTEND_URL) {
+  throw new Error("Front end url is missing");
+}
 app.use(cors({
     origin: process.env.FRONTEND_URL || 'http://localhost:5173',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],

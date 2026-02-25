@@ -1,4 +1,4 @@
-import { desc, eq, getTableColumns, ilike, or, sql } from 'drizzle-orm';
+import { and, desc, eq, getTableColumns, ilike, or, sql } from 'drizzle-orm';
 import express from 'express';
 import { games, genres } from '../db/schema';
 import { db } from '../db';
@@ -10,16 +10,17 @@ router.get("/", async (req, res) => {
     try {
         const { search, genre, page = 1, limit = 10 } = req.query;
 
-        const currentPage = Math.max(1, +page);
-        const limitPerPage = Math.max(1, +limit);
+        const currentPage = Math.max(1, Number(page) || 1);
+        const limitPerPage = Math.max(1, Math.min(Number(limit) || 10, 100));
 
         const offset = (currentPage - 1) * limitPerPage;
 
         const filterConditions = [];
 
-        // If serach query exists, filter by game title
+        // If search query exists, filter by game title
         if (search) {
-            filterConditions.push(ilike(games.title, `%${search}%`));
+            const escaped = String(search).replace(/%/g, '\\%').replace(/_/g, '\\_');
+            filterConditions.push(ilike(games.title, `%${escaped}%`));
         }
 
         // If genre filter exists, filter by genre name
@@ -27,7 +28,7 @@ router.get("/", async (req, res) => {
             filterConditions.push(ilike(genres.name, `%${genre}%`));
         }
 
-        const whereClause = filterConditions.length > 0 ? or(...filterConditions) : undefined;
+        const whereClause = filterConditions.length > 0 ? and(...filterConditions) : undefined;
 
         const countResult = await db
             .select({ count: sql<number>`count(*)` })
@@ -35,7 +36,7 @@ router.get("/", async (req, res) => {
             .leftJoin(genres, eq(games.genreId, genres.id))
             .where(whereClause);
 
-        const totalCount = countResult[0]?.count || 0;
+        const totalCount = Number(countResult[0]?.count) || 0;
 
         const gamesList = await db
             .select({
