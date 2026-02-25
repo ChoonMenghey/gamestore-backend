@@ -25,7 +25,8 @@ router.get("/", async (req, res) => {
 
         // If genre filter exists, filter by genre name
         if (genre) {
-            filterConditions.push(ilike(genres.name, `%${genre}%`));
+            const escapedGenre = String(genre).replace(/%/g, '\\%').replace(/_/g, '\\_');
+            filterConditions.push(ilike(genres.name, `%${escapedGenre}%`));
         }
 
         const whereClause = filterConditions.length > 0 ? and(...filterConditions) : undefined;

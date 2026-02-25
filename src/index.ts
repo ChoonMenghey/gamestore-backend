@@ -4,7 +4,7 @@ import 'dotenv/config';
 import gamesRouter from './routes/games';
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT;
 
 if (!process.env.FRONTEND_URL) {
   throw new Error("Front end url is missing");
