@@ -1,6 +1,7 @@
 CREATE TYPE "public"."role" AS ENUM('developer', 'admin');--> statement-breakpoint
 CREATE TABLE "games" (
 	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "games_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
+	"developer_id" text NOT NULL,
 	"genre_id" integer NOT NULL,
 	"title" varchar(100) NOT NULL,
 	"description" varchar(150) NOT NULL,
@@ -79,11 +80,13 @@ CREATE TABLE "verification" (
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
+ALTER TABLE "games" ADD CONSTRAINT "games_developer_id_user_id_fk" FOREIGN KEY ("developer_id") REFERENCES "public"."user"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "games" ADD CONSTRAINT "games_genre_id_genres_id_fk" FOREIGN KEY ("genre_id") REFERENCES "public"."genres"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "transactions" ADD CONSTRAINT "transactions_game_id_games_id_fk" FOREIGN KEY ("game_id") REFERENCES "public"."games"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "transactions" ADD CONSTRAINT "transactions_player_id_player_id_fk" FOREIGN KEY ("player_id") REFERENCES "public"."player"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "account" ADD CONSTRAINT "account_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "session" ADD CONSTRAINT "session_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+CREATE INDEX "games_developer_id_idx" ON "games" USING btree ("developer_id");--> statement-breakpoint
 CREATE INDEX "games_genre_id_idx" ON "games" USING btree ("genre_id");--> statement-breakpoint
 CREATE INDEX "transactions_game_id_idx" ON "transactions" USING btree ("game_id");--> statement-breakpoint
 CREATE INDEX "transactions_player_id_idx" ON "transactions" USING btree ("player_id");--> statement-breakpoint
