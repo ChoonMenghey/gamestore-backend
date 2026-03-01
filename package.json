@@ -19,6 +19,7 @@
     "@arcjet/inspect": "^1.1.0",
     "@arcjet/node": "^1.1.0",
     "@neondatabase/serverless": "^1.0.2",
+    "better-auth": "^1.5.0",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "drizzle-orm": "^0.45.1",
