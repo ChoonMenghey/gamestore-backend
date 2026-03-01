@@ -40,29 +40,25 @@ export const player = pgTable("player", {
     ...timestamps,
 });
 
-export const session = pgTable(
-    "session",
-    {
-        id: text("id").primaryKey(),
-        userId: text("user_id")
-            .notNull()
-            .references(() => user.id),
-        token: text("token").notNull(),
-        expiresAt: timestamp("expires_at").notNull(),
-        ipAddress: text("ip_address"),
-        userAgent: text("user_agent"),
+export const session = pgTable("session", {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+        .notNull()
+        .references(() => user.id),
+    token: text("token").notNull(),
+    expiresAt: timestamp("expires_at").notNull(),
+    ipAddress: text("ip_address"),
+    userAgent: text("user_agent"),
 
-        ...timestamps,
-    },
+    ...timestamps,
+},
     (table) => ({
         userIdIdx: index("session_user_id_idx").on(table.userId),
         tokenUnique: uniqueIndex("session_token_unique").on(table.token),
     })
 );
 
-export const account = pgTable(
-    "account",
-    {
+export const account = pgTable("account",{
         id: text("id").primaryKey(),
         userId: text("user_id")
             .notNull()
@@ -88,9 +84,7 @@ export const account = pgTable(
     })
 );
 
-export const verification = pgTable(
-    "verification",
-    {
+export const verification = pgTable("verification",{
         id: text("id").primaryKey(),
         identifier: text("identifier").notNull(),
         value: text("value").notNull(),
