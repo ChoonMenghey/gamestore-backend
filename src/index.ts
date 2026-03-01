@@ -1,10 +1,10 @@
 import express from 'express';
 import cors from 'cors';
 import 'dotenv/config';
-import gamesRouter from './routes/games';
-import securityMiddleware from './middleware/security';
+import gamesRouter from './routes/games.js';
+import securityMiddleware from './middleware/security.js';
 import { toNodeHandler } from "better-auth/node";
-import { auth } from './lib/auth';
+import { auth } from './lib/auth.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
