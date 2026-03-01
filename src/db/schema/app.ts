@@ -1,6 +1,6 @@
 import { relations } from "drizzle-orm";
-import { integer, pgTable, timestamp, decimal, varchar, index, pgEnum } from "drizzle-orm/pg-core";
-import { player } from "./auth.js";
+import { integer, pgTable, timestamp, decimal, varchar, index, pgEnum, text } from "drizzle-orm/pg-core";
+import { player, user } from "./auth.js";
 
 export const gameStatusEnum = pgEnum('game_status', ['Available', 'Pending', 'Not Available']);
 
@@ -18,7 +18,7 @@ export const genres = pgTable('genres', {
 // Games table - Each game has title, description, price, genre, release date, cover image
 export const games = pgTable('games', {
   id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
-  developerName: varchar('developer_name', { length: 100 }).notNull(),
+  developerId: text('developer_id').notNull().references(() => user.id, { onDelete: 'restrict' }),
   genreId: integer('genre_id').notNull().references(() => genres.id, { onDelete: 'restrict' }),
   title: varchar('title', { length: 100 }).notNull(),
   description: varchar('description', { length: 150 }).notNull(),
@@ -27,6 +27,7 @@ export const games = pgTable('games', {
   ...timestamps
 },
 (table) => ({
+  developerIdIdx: index('games_developer_id_idx').on(table.developerId),
   genreIdIdx: index('games_genre_id_idx').on(table.genreId),
 })
 );
@@ -52,6 +53,10 @@ export const gameRelations = relations(games, ({ one, many }) => ({
   genre: one(genres, {
     fields: [games.genreId],
     references: [genres.id],
+  }),
+  developer: one(user, {
+    fields: [games.developerId],
+    references: [user.id],
   }),
   transactions: many(transactions),
 }));
