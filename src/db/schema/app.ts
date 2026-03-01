@@ -1,6 +1,6 @@
 import { relations } from "drizzle-orm";
 import { integer, pgTable, timestamp, decimal, varchar, index, text, pgEnum } from "drizzle-orm/pg-core";
-import { player, user } from "./auth";
+import { player, user } from "./auth.js";
 
 export const gameStatusEnum = pgEnum('game_status', ['Available', 'Pending', 'Not Available']);
 
