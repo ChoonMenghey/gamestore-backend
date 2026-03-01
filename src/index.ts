@@ -3,6 +3,8 @@ import cors from 'cors';
 import 'dotenv/config';
 import gamesRouter from './routes/games';
 import securityMiddleware from './middleware/security';
+import { toNodeHandler } from "better-auth/node";
+import { auth } from './lib/auth';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -15,6 +17,7 @@ app.use(cors({
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,
 }))
+app.all('/api/auth/*splat', toNodeHandler(auth));
 app.use(express.json());
 app.use(securityMiddleware);
 
