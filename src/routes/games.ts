@@ -63,4 +63,19 @@ router.get("/", async (req, res) => {
     }
 });
 
+router.post('/', async (req, res) => {
+    try {
+        const [createdGames] = await db
+        .insert(games)
+        .values({...req.body})
+        .returning({id: games.id});
+
+        if(!createdGames) throw Error;
+
+        res.status(201).json({ data: createdGames });
+    } catch (e) {
+        console.error(`POST /games error ${e}`);
+        res.status(500).json({ error: e });
+    }
+})
 export default router;
