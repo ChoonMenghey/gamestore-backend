@@ -1,7 +1,8 @@
 import { relations } from "drizzle-orm";
-import { integer, pgTable, timestamp, serial, decimal, varchar, index, text } from "drizzle-orm/pg-core";
+import { integer, pgTable, timestamp, decimal, varchar, index, text, pgEnum } from "drizzle-orm/pg-core";
 import { player, user } from "./auth";
-import { table } from "node:console";
+
+export const gameStatusEnum = pgEnum('game_status', ['Available', 'Pending', 'Not Available']);
 
 const timestamps = {
   createdAt: timestamp('created_at').defaultNow().notNull(),
@@ -22,6 +23,7 @@ export const games = pgTable('games', {
   title: varchar('title', { length: 100 }).notNull(),
   description: varchar('description', { length: 150 }).notNull(),
   price: decimal('price', { precision: 10, scale: 2 }).notNull(),
+  status: gameStatusEnum('status').default('Available').notNull(),
   ...timestamps
 },
 (table) => ({
