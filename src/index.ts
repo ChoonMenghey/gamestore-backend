@@ -7,7 +7,7 @@ import { toNodeHandler } from "better-auth/node";
 import { auth } from './lib/auth.js';
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = 8000;
 
 if (!process.env.FRONTEND_URL) {
   throw new Error("Front end url is missing");
