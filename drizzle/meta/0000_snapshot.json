@@ -1,5 +1,5 @@
 {
-  "id": "6a167ab4-a8c6-44c5-9044-a2dcee0a838d",
+  "id": "701cdb61-5c5f-479e-9669-2598551b671a",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -24,6 +24,12 @@
             "cache": "1",
             "cycle": false
           }
+        },
+        "developer_id": {
+          "name": "developer_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
         },
         "genre_id": {
           "name": "genre_id",
@@ -65,6 +71,21 @@
         }
       },
       "indexes": {
+        "games_developer_id_idx": {
+          "name": "games_developer_id_idx",
+          "columns": [
+            {
+              "expression": "developer_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
         "games_genre_id_idx": {
           "name": "games_genre_id_idx",
           "columns": [
@@ -82,6 +103,19 @@
         }
       },
       "foreignKeys": {
+        "games_developer_id_user_id_fk": {
+          "name": "games_developer_id_user_id_fk",
+          "tableFrom": "games",
+          "tableTo": "user",
+          "columnsFrom": [
+            "developer_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
         "games_genre_id_genres_id_fk": {
           "name": "games_genre_id_genres_id_fk",
           "tableFrom": "games",
