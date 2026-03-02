@@ -65,9 +65,11 @@ router.get("/", async (req, res) => {
 
 router.post('/', async (req, res) => {
     try {
+        const developerId = (req as any).user?.id ?? req.body.developerId;
+
         const [createdGames] = await db
         .insert(games)
-        .values({...req.body})
+        .values({ ...req.body, developerId })
         .returning({id: games.id});
 
         if(!createdGames) throw Error;

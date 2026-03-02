@@ -2,6 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import 'dotenv/config';
 import gamesRouter from './routes/games.js';
+import usersRouter from './routes/users.js';
+import transactionsRouter from './routes/transactions.js';
 import securityMiddleware from './middleware/security.js';
 import { toNodeHandler } from "better-auth/node";
 import { auth } from './lib/auth.js';
@@ -25,6 +27,10 @@ app.use(express.json());
 app.use(securityMiddleware);
 
 app.use('/api/games', gamesRouter);
+
+app.use('/api/users', usersRouter);
+
+app.use('/api/transactions', transactionsRouter);
 
 app.get('/', (req, res) => {
   res.send('Welcome to Game store API!');
