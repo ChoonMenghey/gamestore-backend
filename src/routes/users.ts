@@ -2,7 +2,9 @@ import express from "express";
 import { and, desc, eq, ilike, or, sql, getTableColumns } from "drizzle-orm";
 
 import { db } from "../db/index.js";
-import { user, games, genres } from "../db/schema/index.js";
+import { user, games, genres, type User } from "../db/schema/index.js";
+
+type UserRoles = User["role"];
 
 const router = express.Router();
 
@@ -10,15 +12,16 @@ router.get("/", async (req, res) => {
     try {
         const { search, role, page = 1, limit = 10 } = req.query;
 
-        const currentPage = Math.max(1, +page);
-        const limitPerPage = Math.max(1, +limit);
+        const currentPage = Math.max(1, Number(page) || 1);
+        const limitPerPage = Math.max(1, Math.min(Number(limit) || 10, 100));
         const offset = (currentPage - 1) * limitPerPage;
 
         const filterConditions = [];
 
         if (search) {
+            const escaped = String(search).replace(/%/g, '\\%').replace(/_/g, '\\_');
             filterConditions.push(
-                or(ilike(user.name, `%${search}%`), ilike(user.email, `%${search}%`))
+                or(ilike(user.name, `%${escaped}%`), ilike(user.email, `%${search}%`))
             );
         }
 
@@ -105,8 +108,9 @@ router.get("/:id/games", async (req, res) => {
                 },
             });
         }
-        const currentPage = Math.max(1, +page);
-        const limitPerPage = Math.max(1, +limit);
+        const currentPage = Math.max(1, Number(page) || 1);
+        const limitPerPage = Math.max(1, Math.min(Number(limit) || 10, 100));
+
         const offset = (currentPage - 1) * limitPerPage;
 
         const countResult =
