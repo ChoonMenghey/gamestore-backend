@@ -1,6 +1,6 @@
 import { relations } from "drizzle-orm";
 import { integer, pgTable, timestamp, decimal, varchar, index, pgEnum, text } from "drizzle-orm/pg-core";
-import { player, user } from "./auth.js";
+import { player, user } from "./auth";
 
 export const gameStatusEnum = pgEnum('game_status', ['Available', 'Pending', 'Not Available']);
 
@@ -23,13 +23,15 @@ export const games = pgTable('games', {
   title: varchar('title', { length: 100 }).notNull(),
   description: varchar('description', { length: 150 }).notNull(),
   price: decimal('price', { precision: 10, scale: 2 }).notNull(),
+  bannerCldPubId: text("banner_cld_pub_id"),
+  bannerUrl: text("banner_url"),
   status: gameStatusEnum('status').default('Available').notNull(),
   ...timestamps
 },
-(table) => ({
-  developerIdIdx: index('games_developer_id_idx').on(table.developerId),
-  genreIdIdx: index('games_genre_id_idx').on(table.genreId),
-})
+  (table) => ({
+    developerIdIdx: index('games_developer_id_idx').on(table.developerId),
+    genreIdIdx: index('games_genre_id_idx').on(table.genreId),
+  })
 );
 
 export const transactions = pgTable('transactions', {
@@ -39,10 +41,10 @@ export const transactions = pgTable('transactions', {
   amount: decimal('amount', { precision: 10, scale: 2 }).notNull(),
   transactionDate: timestamp('transaction_date').defaultNow().notNull(),
 },
-(table) => ({
-  gameIdIdx: index('transactions_game_id_idx').on(table.gameId),
-  playerIdIdx: index('transactions_player_id_idx').on(table.playerId),
-})
+  (table) => ({
+    gameIdIdx: index('transactions_game_id_idx').on(table.gameId),
+    playerIdIdx: index('transactions_player_id_idx').on(table.playerId),
+  })
 );
 
 export const genreRelations = relations(genres, ({ many }) => ({
