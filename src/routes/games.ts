@@ -43,7 +43,7 @@ router.get("/", async (req: Request, res: Response) => {
             .select({
                 ...getTableColumns(games),
                 genre: { ...getTableColumns(genres) },
-                developerId: { ...getTableColumns(user) }
+                developer: { ...getTableColumns(user) }
             }).from(games)
             .leftJoin(genres, eq(games.genreId, genres.id))
             .leftJoin(user, eq(games.developerId, user.id))
