@@ -1,12 +1,13 @@
 import { and, desc, eq, getTableColumns, ilike, or, sql } from 'drizzle-orm';
-import express from 'express';
-import { games, genres } from '../db/schema/index.js';
+import express, { Request, Response } from 'express';
+import { games, genres, user } from '../db/schema/index.js';
 import { db } from '../db/index.js';
+import { auth } from '../lib/auth.js';
 
 const router = express.Router();
 
 // Search all games with optional serach, filtering and pagination
-router.get("/", async (req, res) => {
+router.get("/", async (req: Request, res: Response) => {
     try {
         const { search, genre, page = 1, limit = 10 } = req.query;
 
@@ -19,8 +20,7 @@ router.get("/", async (req, res) => {
 
         // If search query exists, filter by game title
         if (search) {
-            const escaped = String(search).replace(/%/g, '\\%').replace(/_/g, '\\_');
-            filterConditions.push(ilike(games.title, `%${escaped}%`));
+            filterConditions.push(ilike(games.title, `%${search}%`));
         }
 
         // If genre filter exists, filter by genre name
@@ -34,6 +34,7 @@ router.get("/", async (req, res) => {
             .select({ count: sql<number>`count(*)` })
             .from(games)
             .leftJoin(genres, eq(games.genreId, genres.id))
+            .leftJoin(user, eq(games.developerId, user.id))
             .where(whereClause);
 
         const totalCount = Number(countResult[0]?.count) || 0;
@@ -41,22 +42,25 @@ router.get("/", async (req, res) => {
         const gamesList = await db
             .select({
                 ...getTableColumns(games),
-                genre: { ...getTableColumns(genres) }
-            }).from(games).leftJoin(genres, eq(games.genreId, genres.id))
+                genre: { ...getTableColumns(genres) },
+                developer: { ...getTableColumns(user) }
+            }).from(games)
+            .leftJoin(genres, eq(games.genreId, genres.id))
+            .leftJoin(user, eq(games.developerId, user.id))
             .where(whereClause)
             .orderBy(desc(games.createdAt))
             .limit(limitPerPage)
             .offset(offset);
 
-        return res.status(200).json({
+        res.status(200).json({
             data: gamesList,
             pagination: {
                 page: currentPage,
                 limit: limitPerPage,
                 total: totalCount,
                 totalPages: Math.ceil(totalCount / limitPerPage),
-            }
-        })
+            },
+        });
     } catch (error) {
         console.error(`GET /games error: ${error}`);
         res.status(500).json({ error: "Failed to retrieve games" });
@@ -64,17 +68,37 @@ router.get("/", async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
+
     try {
-        const developerId = (req as any).user?.id ?? req.body.developerId;
+        const {
+            title,
+            genreId,
+            price,
+            status,
+            developerId,
+            description,
+            bannerUrl,
+            bannerCldPubId,
+        } = req.body;
 
         const [createdGames] = await db
-        .insert(games)
-        .values({ ...req.body, developerId })
-        .returning({id: games.id});
+            .insert(games)
+            .values({
+                genreId,
+                developerId,
+                title,
+                price,
+                bannerCldPubId,
+                bannerUrl,
+                status,
+                description,
+            })
+            .returning({ id: games.id });
 
-        if(!createdGames) throw Error;
+        if (!createdGames) throw Error("???");
 
         res.status(201).json({ data: createdGames });
+
     } catch (e) {
         console.error(`POST /games error ${e}`);
         res.status(500).json({ error: e });
